@@ -62,8 +62,10 @@ while True:
                 # Draw a point at the center of the face
                 cv2.circle(frame, (face_x, face_y), 2, (0, 255, 0), -1)
 
+                value_x, value_y = face_x - center_x, center_y - face_y
+
                 # Display the coordinates of the face center
-                center_coordinates_text = f"Face {faces_count}: ({face_x - center_x}, {center_y - face_y})"
+                center_coordinates_text = f"Face {faces_count}: ({value_x}, {value_y})"
                 cv2.putText(frame, center_coordinates_text, (face_x + 10, face_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
     # Display the number of faces detected
