@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import time
 
 # Load a pre-trained MobileNet SSD model for face detection
 prototxt_path = 'deploy.prototxt.txt'
@@ -12,9 +13,15 @@ cap = cv2.VideoCapture(0)
 max_faces = 4  # Maximum number of faces to detect and track
 faces_count = 0
 
+# Variables for calculating FPS
+frame_count = 0
+start_time = time.time()
+
 while True:
     # Capture frame-by-frame from the webcam
     ret, frame = cap.read()
+
+    frame_count += 1
 
     # Get the dimensions of the frame
     frame_height, frame_width = frame.shape[:2]
@@ -71,6 +78,11 @@ while True:
     # Display the number of faces detected
     faces_text = f"Faces Count: {faces_count}"
     cv2.putText(frame, faces_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+
+    # Calculate and display FPS
+    elapsed_time = time.time() - start_time
+    fps = frame_count / elapsed_time
+    cv2.putText(frame, f"FPS: {fps:.2f}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
     # Display the frame with face detections
     cv2.imshow("Face Detection", frame)

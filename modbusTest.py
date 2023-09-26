@@ -1,9 +1,41 @@
-import serial
+"""
+def calculate_crc16(data):
+    crc = 0xFFFF
+    polynomial = 0xA001
 
-# CNCB1에 연결 (적절한 포트로 변경)
-ser = serial.Serial('COM4', 9600, timeout=10)
+    for byte in data:
+        crc ^= byte
+        for _ in range(8):
+            if crc & 0x0001:
+                crc = (crc >> 1) ^ polynomial
+            else:
+                crc >>= 1
 
-while True:
-    if ser.inWaiting() > 20:  # 최소 패킷 크기가 21 바이트임
-        packet = ser.read(21)  # 한 번에 하나의 패킷만 읽음
-        print(f"Received packet: {packet}")
+    return crc
+"""
+
+def calculate_crc16(data):
+    crc = 0xFFFF
+    polynomial = 0xA001
+
+    for byte in data:
+        crc ^= byte
+        for _ in range(8):
+            if crc & 0x0001:
+                crc = (crc >> 1) ^ polynomial
+            else:
+                crc >>= 1
+
+    # Swap the bytes before returning
+    crc = ((crc & 0xFF) << 8) | ((crc >> 8) & 0xFF)
+
+    return crc
+
+
+msg = bytes.fromhex("02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00")
+#crc = modbusCrc(msg)
+crc = calculate_crc16(msg)
+print("0x%04X"%(crc))            
+
+ba = crc.to_bytes(2, byteorder='little')
+print("%02X %02X"%(ba[0], ba[1]))
