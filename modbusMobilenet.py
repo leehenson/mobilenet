@@ -2,6 +2,11 @@ import cv2
 import numpy as np
 import time
 import serial
+import sys
+import os
+
+# 현재 디렉토리 출력
+print("Current working directory: ", os.getcwd())
 
 # modbus CRC16 계산 함수
 def calculate_crc16(data):
@@ -21,9 +26,11 @@ def calculate_crc16(data):
 # 시리얼 포트 연결
 ser = serial.Serial('COM1', 9600)  # 'COM1'을 연결할 시리얼 포트로 교체하면서 사용해야 함.
 
+base_path = getattr(sys,'_MEIPASS', os.path.abspath(','))
+
 # 얼굴 감지 Mobilenet SSD 모델 로드
-prototxt_path = 'deploy.prototxt.txt'
-model_path = 'res10_300x300_ssd_iter_140000.caffemodel'
+prototxt_path = os.path.join(base_path, 'deploy.prototxt.txt')
+model_path = os.path.join(base_path, 'res10_300x300_ssd_iter_140000.caffemodel')
 net = cv2.dnn.readNetFromCaffe(prototxt_path, model_path)
 
 # 카메라 연결
