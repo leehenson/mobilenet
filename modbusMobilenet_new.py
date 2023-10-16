@@ -29,8 +29,8 @@ ser = serial.Serial('COM1', 9600)  # 'COM1'을 연결할 시리얼 포트로 교
 base_path = getattr(sys,'_MEIPASS', os.path.abspath(''))
 
 # 얼굴 감지 Mobilenet SSD 모델 로드
-prototxt_path = os.path.join(base_path, 'deploy.prototxt.txt')
-model_path = os.path.join(base_path, 'res10_300x300_ssd_iter_140000.caffemodel')
+prototxt_path = os.path.join(base_path, '2deploy.prototxt.txt')
+model_path = os.path.join(base_path, '2res10_300x300_ssd_iter_140000.caffemodel')
 net = cv2.dnn.readNetFromCaffe(prototxt_path, model_path)
 
 # 카메라 연결
