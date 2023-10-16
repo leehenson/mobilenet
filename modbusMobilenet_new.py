@@ -36,6 +36,9 @@ net = cv2.dnn.readNetFromCaffe(prototxt_path, model_path)
 # 카메라 연결
 cap = cv2.VideoCapture(0)
 
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+
 max_faces = 4  # 감지할 최대 얼굴 수
 faces_count = 0
 
@@ -80,8 +83,10 @@ while True:
     faces_count = 0
 
     # 얼굴 좌표 데이터 배열 초기화
-    value_x_list = []
-    value_y_list = []
+    value_x1_list = []
+    value_y1_list = []
+    value_x2_list = []
+    value_y2_list = []
 
     # 감지된 얼굴 객체에 박싱처리
     for i in range(detections.shape[2]):
@@ -100,21 +105,42 @@ while True:
                 cv2.rectangle(frame, (x, y), (x2, y2), (0, 255, 0), 2)
 
                 # 감지된 얼굴 객체 중심 좌표 계산
-                face_x, face_y = (x + x2) // 2, (y + y2) // 2
+                #face_x, face_y = (x + x2) // 2, (y + y2) // 2
 
                 # 감지된 얼굴 객체 중심점 표시
-                cv2.circle(frame, (face_x, face_y), 2, (0, 255, 0), -1)
+                #cv2.circle(frame, (face_x, face_y), 2, (0, 255, 0), -1)
 
                 # 감지된 얼굴 객체 중심점 좌표값 계산
-                value_x, value_y = face_x - center_x, center_y - face_y
+                #value_x, value_y = face_x - center_x, center_y - face_y
+
+                # 감지된 얼굴 객체 x1, y1 좌표값 계산
+                x1_value, y1_value = x - center_x, center_y - y
+
+                # 감지된 얼굴 객체 x1, y1 좌표값 계산
+                x2_value, y2_value = x2 - center_x, center_y - y2
 
                 # 얼굴 좌표 데이터 배열에 감지된 얼굴 객체 좌표 데이터 추가
-                value_x_list.append(value_x)
-                value_y_list.append(value_y)
+                #value_x_list.append(value_x)
+                #value_y_list.append(value_y)
+
+                # 얼굴 좌표 데이터 배열에 감지된 얼굴 객체 좌표 데이터 추가
+                value_x1_list.append(x1_value)
+                value_y1_list.append(y1_value)
+                value_x2_list.append(x2_value)
+                value_y2_list.append(y2_value)
 
                 # 감지된 얼굴 객체에 얼굴 중심점 좌표 데이터 표시
-                center_coordinates_text = f"Face {faces_count}: ({value_x}, {value_y})"
-                cv2.putText(frame, center_coordinates_text, (face_x + 10, face_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                #center_coordinates_text = f"Face {faces_count}: ({value_x}, {value_y})"
+                #cv2.putText(frame, center_coordinates_text, (face_x + 10, face_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                 #           (0, 255, 0), 2)
+
+                # 감지된 얼굴 객체에 얼굴 중심점 좌표 데이터 표시
+                center_coordinates_text = f"Face {faces_count} x1, y2: ({x1_value}, {y1_value})"
+                cv2.putText(frame, center_coordinates_text, (x + 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                           (0, 255, 0), 2)
+                 # 감지된 얼굴 객체에 얼굴 중심점 좌표 데이터 표시
+                center_coordinates_text = f"Face {faces_count} x2, y2: ({x2_value}, {y2_value})"
+                cv2.putText(frame, center_coordinates_text, (x2 + 10, y2 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                             (0, 255, 0), 2)
 
     # 감지된 얼굴 수 표시
@@ -137,13 +163,23 @@ while True:
 
         # 최대 4개의 얼굴 좌표 데이터를 얼굴 좌표 데이터 배열에 추가
         for i in range(4):
-            if i < len(value_x_list):
-                packet.extend([(value_x_list[i] >> 8) & 0xFF, value_x_list[i] & 0xFF])
+            if i < len(value_x1_list):
+                packet.extend([(value_x1_list[i] >> 8) & 0xFF, value_x1_list[i] & 0xFF])
             else:
                 packet.extend([0, 0])  # 감지가 안된 데이터는 0으로 채움
 
-            if i < len(value_y_list):
-                packet.extend([(value_y_list[i] >> 8) & 0xFF, value_y_list[i] & 0xFF])
+            if i < len(value_y1_list):
+                packet.extend([(value_y1_list[i] >> 8) & 0xFF, value_y1_list[i] & 0xFF])
+            else:
+                packet.extend([0, 0])  # 감지가 안된 데이터는 0으로 채움
+
+            if i < len(value_x2_list):
+                packet.extend([(value_x2_list[i] >> 8) & 0xFF, value_x2_list[i] & 0xFF])
+            else:
+                packet.extend([0, 0])  # 감지가 안된 데이터는 0으로 채움
+
+            if i < len(value_y2_list):
+                packet.extend([(value_y2_list[i] >> 8) & 0xFF, value_y2_list[i] & 0xFF])
             else:
                 packet.extend([0, 0])  # 감지가 안된 데이터는 0으로 채움
 
